@@ -1,0 +1,18 @@
+% Unpack nodal quantity arrays
+node_positions = Nodes_S.node_positions;
+realNodes = Nodes_S.realNodes;
+virtualNodes = Nodes_S.virtualNodes;
+virtualMap = Nodes_S.virtualMap;
+allNeighbors = Nodes_S.allNeighbors;
+allSprings = Nodes_S.allSprings;
+allDistances = Nodes_S.allDistances;
+
+% Unpack integrin - ligand quantity arrays
+ligandSites = Integrins_S.ligandSites;
+ligandBoolSites = Integrins_S.ligandBoolSites;
+integrin_positions = Integrins_S.integrin_positions;
+inactiveSites = Integrins_S.inactiveSites;
+activeSites = Integrins_S.activeSites;
+activePSIndices = Integrins_S.activePSIndices;
+bondedSites = Integrins_S.bondedSites;
+bondedPSIndices = Integrins_S.bondedPSIndices;

@@ -1,5 +1,5 @@
 LSMmodel_v4_3 contains the main model, which LSMparallel_v1 wraps around for performing each simulation in parallel.
-Note for new simulations, force-distance relationships must be found, stored in Curve Fits folder. these are computed with getRelationship or parallelgetRelationship
+Note for new simulations with unseen mechanical parameters, force-distance relationships must be found, stored in Curve Fits folder. These are computed with getRelationships or parallel_getRelationships
 
 
 

@@ -1,4 +1,4 @@
-##Further Ideas/Nuances to Check
+Further Ideas/Nuances to Check
 
 Initial active site population varies. May want to fix random number sequence across all trial simulations to reduce noise
 

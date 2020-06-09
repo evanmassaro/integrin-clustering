@@ -1,5 +1,5 @@
 # Integrin-Clustering
-Electro-chemo-mechanical model to investigate multi-pulse electric-field-driven integrin clustering
+Electro-chemo-mechanical model to investigate multi-pulse electric-field-driven integrin clustering  
 ![DOI](https://zenodo.org/badge/269767974.svg)
 
 * Working version contains the simulations used in publications.

@@ -1,5 +1,6 @@
 function getRelationships_v2(numBonds, d_separation, k_factor, version)
-    
+    % Create distance depedent force and change in energy data points for each integrin-ligand bond. 
+    % Save output after each new bond formation.
     global positiveZ negativeZ 
     
     %% Constants, Geometry, and Parameters
@@ -21,7 +22,8 @@ function getRelationships_v2(numBonds, d_separation, k_factor, version)
     del_gly = del_bond + d_separation;
     del_hop = 5;
     
-    %Equilibrium lengths for glycocalyx plus bond on one node
+    %Equilibrium lengths for glycocalyx plus bond on one node. Assumes the integrin displaces anegligable amount of fluid. 
+    %Note this parallel spring model is probably not needed, given the 2 orders of magnitude difference in spring constants.
     global del_equilibrium k_equilibrium
     del_equilibrium = (k_bond*del_bond+k_gly*del_gly)/(k_bond+k_gly);
     k_equilibrium = k_bond + k_gly;
@@ -30,8 +32,8 @@ function getRelationships_v2(numBonds, d_separation, k_factor, version)
     global numHeight numWidth numDepth numPlane numPlate numSub
     global virtualBuffer
     
-    % Allows a layer of nodes for periodic boundary conditions
-    virtualBuffer = 1;
+    % Create a small computational domain
+    virtualBuffer = 1; % Copies a layer of nodes to enforce periodic boundary conditions
     numHeight = 5; % Number of elements in each column 
     numWidth = 12 + 2*virtualBuffer; % Number of elements in each row       %12 for curve fits
     numDepth = 12 + 2*virtualBuffer; % Number of elements into the page     %12 for curve fits
@@ -44,18 +46,18 @@ function getRelationships_v2(numBonds, d_separation, k_factor, version)
 
     % Dimensions of the membrane and total system
     global numMem cellThickness totalHeight numTot
-    cellThickness = 3; %Size of cell mebrane PLUS ONE
+    cellThickness = 3; %number of vertical nodes in cell membrane
     totalHeight = numHeight + cellThickness;
     numPlate = numPlane*cellThickness; % 2 two spacings thick
     numMem = cellThickness*numPlane; 
     numTot = numMem + numSub; % Total number of nodes
 
-    % Helpful naming convention when selecting ligand or integrin
+    % Hhelpful naming convention when selecting ligand or integrin
     global endFirstLayer startSecondLayer
     endFirstLayer = numHeight;
     startSecondLayer = numHeight + 1; 
     
-    global realNodes virtualNodes virtualMap
+    global realNodes virtualNodes virtualMap % Virtual nodes are duplicated nodes that enforce periodic boundaries.
     [realNodes, virtualNodes, virtualMap] = getRealNodes_v1();
 
 %% Lattice Structure
@@ -74,14 +76,15 @@ function getRelationships_v2(numBonds, d_separation, k_factor, version)
     zCordinate = 3;
     
     firstLayer = length(realNodes)/totalHeight;
-    moveableNodes = realNodes(firstLayer+1:end);
+    moveableNodes = realNodes(firstLayer+1:end); % The substrate was not modeled to deform for large spring constant such as glass.
     numIter = length(realNodes)*10^2; % Change number of MCS steps here
     
     numNodesInPlane = realNodes(1:length(realNodes)/totalHeight);
     ranSites = randsample(numNodesInPlane,numBonds);
+    % Create random sequence of bonds to form, to measure distance-dependent change in force and energy.
     bondSites = ranSites + numPlane*(startSecondLayer-1); 
     
-    d = zeros(1,numBonds);
+    d = zeros(1,numBonds); % deformation in integrin-ligand bond after formation
     force = zeros(1,numBonds);
     deltaEnergy = zeros(1,numBonds);
     
@@ -89,13 +92,13 @@ function getRelationships_v2(numBonds, d_separation, k_factor, version)
     full_str = [fore_str,'_', version,'.mat'];
     
     for i = 1:numBonds
-        
         integrin = bondSites(i);
         ligand = bondSites(i) - numPlane;  
 
         oldEnergy = getSystemEnergy_v2(moveableNodes);
         d(i) = positions(integrin,3) - positions(ligand,3)-del_equilibrium;
         
+        % 'create bond' by changing spring properties
         allSprings(ligand,positiveZ) =  k_equilibrium;
         allSprings(integrin,negativeZ) =  k_equilibrium;
         allDistances(ligand,positiveZ,zCordinate) =  del_equilibrium;

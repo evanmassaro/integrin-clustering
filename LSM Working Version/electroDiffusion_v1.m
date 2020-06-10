@@ -1,8 +1,8 @@
 function electroDiffusion_v1(index, direction)
     global integrinPositions del_hop lengthX del_sub
     
-    % Change sign depending on direction of drift velocity. Assumes only in
-    % positive x direction right now
+    % Change sign depending on direction of drift velocity. Assumes electric field is only in
+    % positive x or negative x direction right now
    switch direction
         case 1
             integrinPositions(index,1) = integrinPositions(index,1) + del_hop;

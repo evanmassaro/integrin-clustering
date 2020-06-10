@@ -7,42 +7,14 @@
     
 % Specify parameters to vary
     
-    numSim = 72;
-    k_factor = zeros(numSim,1);
-    d_separation = 16*ones(numSim,1);
-    num_bonds = 5*ones(numSim,1);
-    num_bonds(1:12) = 30;
+    numSim = 3; % Number of simulations. 
+    k_factor = [10, 20, 40]; % Note: k_mem = k_factor*k_gly;
+    d_separation = 16*ones(numSim,1); % Note: del_gly = del_bond + d_separation;
+    num_bonds = 30*ones(numSim,1); % Simulate 30 bonds form. 
     
-    versions = zeros(numSim,1);
-    
-    v = 1;
-    for i = 1:numSim
-        type = mod(i,3);
-        if type == 0
-            type = 3;
-        end
-        
-        if mod(i,6) == 1
-            versions(i:i+5) = v;
-            v = v + 1;
-        end
-        
-        if type == 1
-            k_factor(i) = 10;
-            
-            if mod(i,2) == 0
-                d_separation(i:i+2) = 16;
-            else
-                d_separation(i:i+2) = 14;
-            end
-                
-        elseif type == 2
-            k_factor(i) = 20;
-        else
-            k_factor(i) = 40;
-        end
-        
-    end
+    versions = ones(numSim,1); % After ~5 bonds, most the the points in the deformation v force and energy plots have small
+    %deformation. It could be more accurate to repeat a couple more experiments of the first ~5 bond formations to get a more
+    % accurate overall fit, and then concatenate all the data into one mat file per system parameters.
 
 %% Error checking in set up
     assert( numSim == length(d_separation) )

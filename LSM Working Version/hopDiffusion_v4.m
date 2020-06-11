@@ -1,4 +1,5 @@
 function hopDiffusion_v4(index)
+    %Thermal diffusion
     global integrinPositions del_hop lengthX lengthY del_sub
     
     %% Determine random xy-direction to pertube integrin

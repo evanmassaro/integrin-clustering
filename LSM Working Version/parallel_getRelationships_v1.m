@@ -20,8 +20,7 @@
     assert( numSim == length(versions) )
 
 %% Parallelized model
-% global positions
-    for i = 1:1
+    parfor i = 1:numSim
         d_local = d_separation(i);
         k_local = k_factor(i);
         bonds_local = num_bonds(i);

@@ -3,7 +3,7 @@ function [K,L] = ripleyK(xyPositions,S,lengthX,lengthY)
     numberPoints = length(xyPositions);
     area = lengthX*lengthY;
     
-    
+    % Duplicate and translate all points into 9x9 tiling.
     xyDuplicated = zeros(9*numberPoints,2);
     k = 0;
     for i = -1:1
@@ -17,6 +17,7 @@ function [K,L] = ripleyK(xyPositions,S,lengthX,lengthY)
     end
     xyDuplicated(1:numberPoints,1:2) = xyPositions;
     
+    % Dtermine clustering statistics
     K = zeros(1,length(S));
     L = zeros(1,length(S));
     for r = 1:length(S)

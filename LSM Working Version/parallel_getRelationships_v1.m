@@ -9,7 +9,7 @@
     
     numSim = 3; % Number of simulations. 
     k_factor = [10, 20, 40]; % Note: k_mem = k_factor*k_gly; where k_gly = 0.02 pN/nm
-    d_separation = 16*ones(numSim,1); % Note: del_gly = del_bond + d_separation;
+    d_separation = 16*ones(numSim,1); % Note: del_gly = del_bond + d_separation; where del_bond = 27 nm fixed.
     num_bonds = 30*ones(numSim,1); % Simulate 30 bonds form. 
     
     versions = ones(numSim,1); % After ~5 bonds, most the the points in the deformation versua force and energy plots have small

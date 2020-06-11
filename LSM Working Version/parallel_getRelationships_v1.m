@@ -11,7 +11,6 @@
     k_factor = [10, 20, 40]; % Note: k_mem = k_factor*k_gly; where k_gly = 0.02 pN/nm currently fixed.
     d_separation = 16*ones(numSim,1); % Note: del_gly = del_bond + d_separation; where del_bond = 27 nm currently fixed.
     num_bonds = 30*ones(numSim,1); % Simulate 30 consecutive bond formations
-    
     versions = ones(numSim,1);
 
 %% Error checking in set up

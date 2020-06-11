@@ -12,7 +12,7 @@
     k_E = 40/15*E % 1/s electrophoretic reaction rate
     k_mem = 0.8*ones(1,numSims); % pN/nm membrane spring constant 
     pulse_width = (1000*10^(-6))*ones(1,numSims); % seconds
-    polarity = 2*ones(1,numSims); % Convention: 0 = constant, 1 = unipolar, 2 = bipolar
+    polarity = 2*ones(1,numSims); % Convention: 0 = constant, 1 = unipolar, 2 = bipolar. If constant, other pulse parameters don't effect result
     version = 1:numSims; % This generates 12 trials of the same parameter configuration, with different random initial conditions
     
     numSimulations = length(ligDen);

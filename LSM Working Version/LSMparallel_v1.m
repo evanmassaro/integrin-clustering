@@ -14,8 +14,6 @@
     pulse_width = (1000*10^(-6))*ones(1,numSims); % seconds
     polarity = 2*ones(1,numSims); % Convention: 0 = constant, 1 = unipolar, 2 = bipolar. If constant, other pulse parameters don't effect result
     version = 1:numSims; % This generates 12 trials of the same parameter configuration, with different random initial conditions
-    
-    numSimulations = length(ligDen);
 
 %% Error checking in set up
     assert( length(ligDen) == length(d_separation) )
@@ -26,7 +24,7 @@
     assert( length(ligDen) == length(pulse_width) )
 
 %% Parallelized model
-     parfor i = 1:numSimulations
+     parfor i = 1:numSims
      rng('shuffle') % Needed such that each job is not initialized with same random seed, and return the same simulations
      
         %variables local to each worker

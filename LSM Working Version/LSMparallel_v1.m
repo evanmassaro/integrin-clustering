@@ -4,14 +4,16 @@
     addpath(genpath(pwd))
     
 %% Specify parameters to vary
-    simulationTimes = 120*ones(1,12);
-    d_separation = 16*ones(1,12);
-    ligDen = 500*ones(1,12);
-    k_E = 40/15*10000*ones(1,12);
-    k_mem = 0.8*ones(1,12);
-    pulse_width = (1000*10^(-6))*ones(1,12);
-    polarity = 2*ones(1,12);
-    version = [1,2,3,4,5,6,7,8,9,10,11,12];
+    numSims = 12; # Number of parallel simulations. I dedicated one simulation per CPU core.
+    simulationTimes = 120*ones(1,numSims); % 120 seconds (Very overkill. Can cut simulations early or add logic to complete upon bond saturation)
+    d_separation = 16*ones(1,numSims); % nm. distances: d_separation = d_glycocalyx - d_bond 
+    ligDen = 500*ones(1,numSims); % 1/(\mu m)^2 ligand density
+    E = 10000*ones(1,numSims); % V/cm
+    k_E = 40/15*E % 1/s electrophoretic reaction rate
+    k_mem = 0.8*ones(1,numSims); % pN/nm membrane spring constant 
+    pulse_width = (1000*10^(-6))*ones(1,numSims); % seconds
+    polarity = 2*ones(1,numSims); % Convention: 0 = constant, 1 = unipolar, 2 = bipolar
+    version = 1:numSims; % This generates 12 trials of the same parameter configuration, with different random initial conditions
     
     numSimulations = length(ligDen);
 
@@ -25,8 +27,9 @@
 
 %% Parallelized model
      parfor i = 1:numSimulations
-%         rng('shuffle') %Need only in Parfor loop
-%         %local version of variables
+     rng('shuffle') % Needed such that each job is not initialized with same random seed, and return the same simulations
+     
+        %variables local to each worker
         stop_local = simulationTimes(i);
         d_local = d_separation(i);
         lig_local = ligDen(i);

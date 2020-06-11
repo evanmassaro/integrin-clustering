@@ -1,6 +1,6 @@
 function LSMmodel_v4_3(stop, d_separation, ligDen, k_E, kmem, polarity, p_width, version)
 
-%% Constants, Geometry, and Parameters
+%% Constants, Geometry, and Parameters. All units in standard SI.
     global nm2m
     nm2m = 10^(-9);
     global k_forward k_reverse
@@ -18,7 +18,8 @@ function LSMmodel_v4_3(stop, d_separation, ligDen, k_E, kmem, polarity, p_width,
     del_gly = del_bond + d_separation;
     del_hop = 5;
     
-    %Equilibrium lengths for glycocalyx plus bond on one node
+    %Equilibrium lengths for glycocalyx plus bond on one node. Assumes the integrin displaces a negligable amount of fluid. 
+    %Note this parallel spring model is probably not needed, given the 2 orders of magnitude difference in spring constants.
     global del_equilibrium k_equilibrium
     del_equilibrium = (k_bond*del_bond+k_gly*del_gly)/(k_bond+k_gly);
     k_equilibrium = k_bond + k_gly;
@@ -27,11 +28,11 @@ function LSMmodel_v4_3(stop, d_separation, ligDen, k_E, kmem, polarity, p_width,
     global numHeight numWidth numDepth numPlane numPlate numSub
     global virtualBuffer
     
+    virtualBuffer = 1; % Copies a layer of nodes to enforce periodic boundary conditions
     % Allows a layer of nodes for periodic boundary conditions
-    virtualBuffer = 1; 
-    numHeight = 1; % Number of elements in each column 
-    numWidth = 70 + 2*virtualBuffer; % Number of elements in each row       %12 for curve fits
-    numDepth = 70 + 2*virtualBuffer; % Number of elements into the page     %12 for curve fits
+    numHeight = 1; % Number of vertical elements in substrate.
+    numWidth = 70 + 2*virtualBuffer; % Number of elements in each row       
+    numDepth = 70 + 2*virtualBuffer; % Number of elements into the page     
     numSub = numHeight*numWidth*numDepth;
     numPlane = numWidth*numDepth;
 
@@ -41,7 +42,7 @@ function LSMmodel_v4_3(stop, d_separation, ligDen, k_E, kmem, polarity, p_width,
 
     % Dimensions of the membrane and total system
     global numMem cellThickness totalHeight numTot
-    cellThickness = 3; %Size of cell mebrane PLUS ONE
+    cellThickness = 3; %number of vertical nodes in cell membrane
     totalHeight = numHeight + cellThickness;
     numPlate = numPlane*cellThickness; % 2 two spacings thick
     numMem = cellThickness*numPlane; 
@@ -52,7 +53,7 @@ function LSMmodel_v4_3(stop, d_separation, ligDen, k_E, kmem, polarity, p_width,
     endFirstLayer = numHeight;
     startSecondLayer = numHeight + 1; 
     
-    global realNodes virtualNodes virtualMap
+    global realNodes virtualNodes virtualMap  % Virtual nodes are duplicated nodes that enforce periodic boundaries.
     [realNodes, virtualNodes, virtualMap] = getRealNodes_v1();
 
 %% Lattice Structure
@@ -95,24 +96,30 @@ function LSMmodel_v4_3(stop, d_separation, ligDen, k_E, kmem, polarity, p_width,
     bondedPSIndices = [];
     integrinActivation_v1();
     activePSIndices = getIntegrinPSIndices_v2();
+    % bondedPSIndices activePSIndices (PS = PSuedo) track the nearest element that an active/bonded integrin is
+    % and assigns it to that node position if bond forms
 
     global savedStates kBT
     savedStates = false;
     kBT = 4.28*10^(-12)*10^(-9);
     
+    % Get first version of precomputed distance versus force and energy data to compute curve fits.
     [forceC, energyC] = new_getFits_v1(del_gly,k_gly,k_mem,'1',0);
     global maxForce
     maxd = del_gly-del_bond;
     maxForce = polyval(forceC,maxd);
     
+    % Display the fraction of initial active integrins.
     disp(['Active frac: ',num2str(length(activeSites)/length(integrinPositions))])
     
+    % Given integrins and distance fits, compute forward and reverse rates of bond formation.
     updateBondRates_v4(forceC, energyC, 1:length(activeSites), 1:length(bondedSites))
     
+    % Store all reaction rates for each integrin into a new array
     global reactionVector
     reactionVector = calculateReactionVector_v1();
     
-%%  HFIRE parameters
+%%  Pulsed electric field parameters
     global period pulse_width burst_width
     pulse_width = p_width; %seconds
     interdelay = 100*10^(-6);
@@ -121,19 +128,19 @@ function LSMmodel_v4_3(stop, d_separation, ligDen, k_E, kmem, polarity, p_width,
     
     burst_width = max_pulses*period;
     
-    e_direction = 1;
+    e_direction = 1; % Default electrophoretic diffusion in positive x direction. 2 = negative x direction.
 
 %% Simulation parameters 
 
-    simTime = 0;
-    precision = 2;
-    oldRoundedTime = 0;
-    stopTime = stop;
+    simTime = 0; % Current simulated time (s)
+    precision = 2; % Check time to two decimal places
+    oldRoundedTime = 0; % Temporary variable
+    stopTime = stop; % Cutoff time for simulations
     
 %% Start clustering statistics
-    stepSize = 2;
+    stepSize = 2; % discrete sampling step size for Ripley K
     S = 1:stepSize:lengthX/2;
-    countL = 1;
+    countL = 1; % counter for all temporal statistics
     LMatrix = zeros(1,length(S));
     [~,L] = ripleyK(integrinPositions(:,1:2), S, lengthX, lengthY);
             
@@ -144,12 +151,12 @@ function LSMmodel_v4_3(stop, d_separation, ligDen, k_E, kmem, polarity, p_width,
     
 %% Determine format of directories
     
-    %Prepare folder to hold printed figure
+    %Prepare folder to hold data
     folderName = ['d ',num2str(d_separation),', E ',num2str(k_E), ...
                  ', L ',num2str(ligDen), ', k_mem ',num2str(kmem), ...
                  ', polarity ', num2str(polarity), ', pulse_width ', num2str(p_width*10^6),...
                  ', version ', num2str(version)];
-    [~, ~, ~] = mkdir(folderName);
+    [~, ~, ~] = mkdir(folderName); %This formats removes errors or warnings if folder already exists
     addpath(folderName)
     disp(folderName)
     
@@ -157,14 +164,16 @@ function LSMmodel_v4_3(stop, d_separation, ligDen, k_E, kmem, polarity, p_width,
     pathName = fullfile(folderName,[folderName,', time_0.mat']);
     save(pathName)
 
-    c = 1;
+    c = 1; % timestep counter for debugging
 
 %% Start of Simulation
     while simTime < stopTime %Seconds
     
-        % Implemented Gillespie algorithm     
+        % Determine most probable reaction
         [index, state, mu, tau, e_direction] = determineReaction_v4(simTime, polarity, k_E);
+        % Perform reaction update
         transitionStates_v4(index,state,mu, e_direction, forceC, energyC)
+%% For debug and timing purposes
 %         if (length(activeSites) ~= length(activePSIndices)) || (length(bondedSites) ~= length(bondedPSIndices))
 %             disp('There has been a terrible error')
 %             assert(0 == 1)
@@ -181,9 +190,8 @@ function LSMmodel_v4_3(stop, d_separation, ligDen, k_E, kmem, polarity, p_width,
           
         simTime = simTime + tau;
         
-        
-        % Determine when to update image
-        newRoundedTime = round(simTime,precision);
+        % Determine when to update statistics, can also be used to save rendered graphics.
+        newRoundedTime = round(simTime, precision);
         if newRoundedTime - oldRoundedTime ~= 0
             newImage = true;
             oldRoundedTime = newRoundedTime;
@@ -191,12 +199,12 @@ function LSMmodel_v4_3(stop, d_separation, ligDen, k_E, kmem, polarity, p_width,
             newImage = false;
         end
         
-        % Display L-statistic every 1 second
+        % Compute statistics every `1' second, and save all data to directory.
         if mod(newRoundedTime,1) == 0 && newImage == true
             [~,L] = ripleyK(integrinPositions(:,1:2), S, lengthX, lengthY);
             
-            LMatrix(countL,:) = L;
-            bondFrac(countL) = length(bondedSites)/length(integrinPositions);
+            LMatrix(countL,:) = L; % matrix of Ripley L statistics
+            bondFrac(countL) = length(bondedSites)/length(integrinPositions); % array of bond fractions
 
             pathName = fullfile(folderName,[folderName,', time_',num2str(newRoundedTime),'.mat']);
             save(pathName)

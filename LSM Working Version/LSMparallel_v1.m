@@ -3,7 +3,7 @@
     clc; clear all;
     addpath(genpath(pwd))
     
-%% Specify parameters to vary
+    % Specify parameters to vary
     numSims = 12; # Number of parallel simulations. I dedicated one simulation per CPU core.
     simulationTimes = 120*ones(1,numSims); % 120 seconds (Very overkill. Can cut simulations early or add logic to complete upon bond saturation)
     d_separation = 16*ones(1,numSims); % nm. distances: d_separation = d_glycocalyx - d_bond 

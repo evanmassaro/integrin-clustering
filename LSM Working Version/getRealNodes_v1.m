@@ -1,4 +1,7 @@
 function [realNodes, virtualNodes, virtualMap] = getRealNodes_v1()
+    % realNodes are the actual lattice elements
+    % virtualNodes are the boundary lattice elements that are used to duplicate periodic boundaries
+    % virtualMap used to map physical and virtual neighbors
     
     global totalHeight numDepth numWidth numPlane numTot positions
     nodeIndex = 1;
@@ -15,6 +18,7 @@ function [realNodes, virtualNodes, virtualMap] = getRealNodes_v1()
                     
 %                     disp([x y])
                     k = 1;
+                    % Index within the plane
                     modIndex = mod(nodeIndex,numPlane);
                     if modIndex == 0
                         modIndex = numPlane;
@@ -57,7 +61,7 @@ function [realNodes, virtualNodes, virtualMap] = getRealNodes_v1()
                         end
                     end
                     
-%                     %Display nodes
+%                     % Display nodes for debugging
 %                     cla;
 %                     updateDisplay_v1()
 %                     scatter3(positions(nodeIndex,1),positions(nodeIndex,2),positions(nodeIndex,3)+0.5, 50,'MarkerEdgeColor','k','MarkerFaceColor','r','LineWidth',2);

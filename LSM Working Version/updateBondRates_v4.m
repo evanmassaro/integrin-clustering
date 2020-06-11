@@ -6,14 +6,15 @@ function updateBondRates_v4(forceC, energyC, activeIndArray, bondedIndArray)
     global k_reverse_Init k_forward_Init kBT compliance k_forward k_reverse
     global maxForce
     
+    % This should be updated so it is only done when an integrin moves or nearby integrin bonds/ruptures.
     for i = activeIndArray
-
+        % For each active integrin, determine nearest node
         integrin = activePSIndices(i);
         ligand = integrin - numPlane;
         
+        % Use curve fits for force and change in energy for the bond
         d = positions(integrin,3) - positions(ligand,3)-del_equilibrium;
         force = polyval(forceC,d);
-    
         deltaEnergy = polyval(energyC,d^2);
         
         k_reverse(i) = k_reverse_Init*exp(force*compliance/kBT);
@@ -55,7 +56,7 @@ function updateBondRates_v4(forceC, energyC, activeIndArray, bondedIndArray)
         B = forceC(2);
         C = forceC(3)-force;
         
-        % Need to change the sign of +- depending on curvature
+        % Need to change the sign of +- depending on curvature of quadratic distance-force function.
         d1 = (-B+sqrt(B^2-4*A*C))/(2*A);
         d2 = (-B-sqrt(B^2-4*A*C))/(2*A);
         
@@ -66,7 +67,7 @@ function updateBondRates_v4(forceC, energyC, activeIndArray, bondedIndArray)
             d = max(d1,d2);
         end
         
-        assert(isreal(d))
+        assert(isreal(d)) % Debugging purposes
 
         deltaEnergy = polyval(energyC,d^2);
 

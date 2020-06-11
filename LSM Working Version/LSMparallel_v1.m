@@ -39,7 +39,7 @@
         p_width = pulse_width(i);
         v = version(i);
         
-        % Run model and return results
+        % Run simulation. This creates folders that holds the data, defaults to save the simulation every one simulated second
         LSMmodel_v4_3(stop_local, d_local, lig_local, k_E_local, k_mem_local, pol, p_width, v);
      end
      

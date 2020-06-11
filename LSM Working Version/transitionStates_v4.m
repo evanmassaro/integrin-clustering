@@ -7,6 +7,12 @@ function transitionStates_v4(index,state,mu, e_direction, forceC, energyC)
     numReactions = 6;
 
     % Change state of integrin according to the reaction
+    % 1 = inactive -> active
+    % 2 = active -> inactive
+    % 3 = bonded -> active
+    % 4 = active -> bonded
+    % 5 = thermal diffusion
+    % 6 = electrophoretic diffusion
     switch state
         case 'Inactive'
             switch mu
@@ -103,7 +109,7 @@ function transitionStates_v4(index,state,mu, e_direction, forceC, energyC)
                     bondedSites(index) = []; % Remove from inactive list
                     minimizeSystemEnergy_v4(sampleRegion,MCSteps);
 
-                        savedStates = false;
+                    savedStates = false;
 
                     activePSIndices = getIntegrinPSIndices_v2();
                     updateBondRates_v4(forceC, energyC, 1:length(activeSites), 1:length(bondedSites))
@@ -114,7 +120,7 @@ function transitionStates_v4(index,state,mu, e_direction, forceC, energyC)
                     error('Impossible Reaction')
             end
         otherwise 
-            error('Invalid state')
+            error('Invalid integrin state')
             
     end   
     

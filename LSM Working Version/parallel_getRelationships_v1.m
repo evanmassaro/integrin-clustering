@@ -5,8 +5,7 @@
     addpath('Curve Fits')  
     addpath('Tests')
     
-% Specify parameters to vary
-    
+% Specify common parameters to vary  
     numSim = 3; % Number of simulations. 
     k_factor = [10, 20, 40]; % Note: k_mem = k_factor*k_gly; where k_gly = 0.02 pN/nm currently fixed.
     d_separation = 16*ones(numSim,1); % Note: del_gly = del_bond + d_separation; where del_bond = 27 nm currently fixed.
